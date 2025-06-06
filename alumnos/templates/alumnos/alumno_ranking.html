@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo_ranking }}</title> {# Si mantuviste el modelo ConfiguracionRanking #}
+    {# <title>Ranking de Alumnos</title> #} {# Si no mantuviste el modelo de Config #}
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: grid;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 90%;
+            border: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        h1:hover { border-color: #ccc; }
+        h1:focus { outline: none; border-color: #007bff; }
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover { background-color: #2980b9; }
+        .btn-add-alumno { background-color: #28a745; }
+        .btn-add-alumno:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-warning { background-color: #ffc107; color: #333;}
+        .btn-warning:hover { background-color: #e0a800; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; }
+        th { background-color: #e9ecef; color: #495057; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e2e6ea; }
+
+        .form-inline { display: flex; align-items: center; gap: 5px; }
+        .form-inline input[type="number"],
+        .form-inline input[type="text"] {
+            padding: 6px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .form-inline button {
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .form-inline button:hover { background-color: #0056b3; }
+        .no-alumnos { text-align: center; color: #6c757d; padding: 20px; border: 1px dashed #ced4da; border-radius: 5px; margin-top: 20px; }
+
+        .top1 { background-color: #FFD700; font-weight: bold; }
+        .top2 { background-color: #C0C0C0; font-weight: bold; }
+        .top3 { background-color: #CD7F32; font-weight: bold; }
+        .trophy-icon { margin-right: 5px; font-size: 1.2em; }
+        #instruction-text { text-align: center; font-size: 0.9em; color: #777; margin-top: -20px; margin-bottom: 20px; }
+
+        .form-add-alumno { display: flex; gap: 10px; margin-bottom: 20px; }
+        .form-add-alumno input[type="text"] { flex-grow: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="rankingTitle" contenteditable="true"> 🏆 {{ titulo_ranking }} 🏆 </h1>
+        <p id="instruction-text">Haz clic en el título para editarlo.</p>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="form-add-alumno">
+                <input type="text" id="newAlumnoName" placeholder="Nombre del nuevo alumno" required>
+                <button type="button" class="btn btn-add-alumno" id="addAlumnoBtn">➕ Agregar Alumno</button>
+            </div>
+            <button type="button" class="btn btn-warning" id="newRankingBtn">✨ Crear Ranking Nuevo</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Nombre del Alumno</th>
+                    <th>Puntos Totales</th>
+                    <th>Sumar Puntos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="alumnosTableBody">
+                {# Los alumnos se renderizarán aquí con JavaScript #}
+            </tbody>
+        </table>
+
+        <p class="no-alumnos" id="noAlumnosMessage" style="display: none;">No hay alumnos registrados aún. ¡Empieza agregando uno!</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const RANKING_TITLE_STORAGE_KEY = 'rankingTitle';
+            const ALUMNOS_STORAGE_KEY = 'alumnosRankingData';
+            const DEFAULT_RANKING_TITLE = 'Ranking de Alumnos';
+
+            const rankingTitleElement = document.getElementById('rankingTitle');
+            const newAlumnoNameInput = document.getElementById('newAlumnoName');
+            const addAlumnoBtn = document.getElementById('addAlumnoBtn');
+            const alumnosTableBody = document.getElementById('alumnosTableBody');
+            const noAlumnosMessage = document.getElementById('noAlumnosMessage');
+            const newRankingBtn = document.getElementById('newRankingBtn');
+            const instructionText = document.getElementById('instruction-text');
+
+            let alumnos = []; // Array para almacenar los alumnos
+
+            // --- Funciones de Utilidad para localStorage ---
+            function loadDataFromLocalStorage() {
+                const savedTitle = localStorage.getItem(RANKING_TITLE_STORAGE_KEY);
+                rankingTitleElement.innerHTML = savedTitle || `🏆 ${DEFAULT_RANKING_TITLE} 🏆`;
+
+                const savedAlumnos = localStorage.getItem(ALUMNOS_STORAGE_KEY);
+                if (savedAlumnos) {
+                    alumnos = JSON.parse(savedAlumnos);
+                } else {
+                    alumnos = [];
+                }
+            }
+
+            function saveDataToLocalStorage() {
+                localStorage.setItem(ALUMNOS_STORAGE_KEY, JSON.stringify(alumnos));
+                localStorage.setItem(RANKING_TITLE_STORAGE_KEY, rankingTitleElement.innerText.trim());
+            }
+
+            // --- Funciones para Manipular Alumnos ---
+            function generateUniqueId() {
+                return '_' + Math.random().toString(36).substr(2, 9); // Simple ID único
+            }
+
+            function addAlumno(name) {
+                if (!name.trim()) return;
+
+                // Verificar si ya existe un alumno con ese nombre (ignoring case)
+                const existingAlumno = alumnos.find(a => a.name.toLowerCase() === name.toLowerCase());
+                if (existingAlumno) {
+                    alert('¡Ya existe un alumno con ese nombre!');
+                    return;
+                }
+
+                alumnos.push({
+                    id: generateUniqueId(),
+                    name: name.trim(),
+                    points: 0,
+                    active: true
+                });
+                newAlumnoNameInput.value = '';
+                renderAlumnos();
+                saveDataToLocalStorage();
+            }
+
+            function addPointsToAlumno(alumnoId, amount) {
+                const alumno = alumnos.find(a => a.id === alumnoId);
+                if (alumno) {
+                    alumno.points += amount;
+                    renderAlumnos();
+                    saveDataToLocalStorage();
+                }
+            }
+
+            function deleteAlumno(alumnoId) {
+                if (confirm('¿Estás seguro de que quieres eliminar este alumno?')) {
+                    alumnos = alumnos.filter(a => a.id !== alumnoId);
+                    renderAlumnos();
+                    saveDataToLocalStorage();
+                }
+            }
+
+            function clearRanking() {
+                if (confirm('¿Estás seguro de que quieres crear un nuevo ranking? Se borrarán todos los alumnos actuales.')) {
+                    alumnos = [];
+                    saveDataToLocalStorage();
+                    renderAlumnos();
+                    rankingTitleElement.innerHTML = `🏆 ${DEFAULT_RANKING_TITLE} 🏆`; // Reiniciar el título
+                    localStorage.setItem(RANKING_TITLE_STORAGE_KEY, DEFAULT_RANKING_TITLE);
+                }
+            }
+
+            // --- Renderizado del Ranking ---
+            function renderAlumnos() {
+                alumnos.sort((a, b) => b.points - a.points); // Ordenar por puntos (descendente)
+                alumnosTableBody.innerHTML = ''; // Limpiar la tabla
+
+                if (alumnos.length === 0) {
+                    noAlumnosMessage.style.display = 'block';
+                    alumnosTableBody.style.display = 'none'; // Ocultar tbody si no hay alumnos
+                } else {
+                    noAlumnosMessage.style.display = 'none';
+                    alumnosTableBody.style.display = 'table-row-group'; // Mostrar tbody si hay alumnos
+                    alumnos.forEach((alumno, index) => {
+                        const row = document.createElement('tr');
+                        const positionClass = index === 0 ? 'top1' : (index === 1 ? 'top2' : (index === 2 ? 'top3' : ''));
+                        row.className = positionClass;
+
+                        const trophyIcon = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : ''));
+
+                        row.innerHTML = `
+                            <td>${trophyIcon} ${index + 1}</td>
+                            <td>${alumno.name}</td>
+                            <td>${alumno.points}</td>
+                            <td>
+                                <div class="form-inline">
+                                    <input type="number" class="points-input" value="1" min="1" style="width: 80px;">
+                                    <button type="button" class="btn-sumar-puntos" data-id="${alumno.id}">Sumar</button>
+                                </div>
+                            </td>
+                            <td>
+                                <button type="button" class="btn-danger btn-eliminar" data-id="${alumno.id}">Eliminar</button>
+                            </td>
+                        `;
+                        alumnosTableBody.appendChild(row);
+                    });
+
+                    // Añadir event listeners a los nuevos botones
+                    document.querySelectorAll('.btn-sumar-puntos').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const alumnoId = event.target.dataset.id;
+                            const pointsInput = event.target.previousElementSibling;
+                            const pointsAmount = parseInt(pointsInput.value, 10);
+                            if (!isNaN(pointsAmount) && pointsAmount > 0) {
+                                addPointsToAlumno(alumnoId, pointsAmount);
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('.btn-eliminar').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const alumnoId = event.target.dataset.id;
+                            deleteAlumno(alumnoId);
+                        });
+                    });
+                }
+            }
+
+            // --- Event Listeners Globales ---
+
+            // Cargar datos al inicio
+            loadDataFromLocalStorage();
+            renderAlumnos();
+
+            // Guardar título al editar
+            rankingTitleElement.addEventListener('blur', function() {
+                const cleanedTitle = rankingTitleElement.innerText.trim();
+                localStorage.setItem(RANKING_TITLE_STORAGE_KEY, cleanedTitle);
+                // Si el usuario borra la copa, la reinsertamos
+                if (!cleanedTitle.includes('🏆')) {
+                    rankingTitleElement.innerHTML = cleanedTitle + ' <span class="trophy-icon">🏆</span>';
+                    localStorage.setItem(RANKING_TITLE_STORAGE_KEY, rankingTitleElement.innerHTML);
+                }
+            });
+
+            // Ocultar instrucción al hacer foco en el título
+            rankingTitleElement.addEventListener('focus', function() {
+                instructionText.style.display = 'none';
+            });
+            // Mostrar instrucción de nuevo si el título queda vacío
+            rankingTitleElement.addEventListener('blur', function() {
+                if (rankingTitleElement.innerText.trim() === '') {
+                    instructionText.style.display = 'block';
+                    rankingTitleElement.innerHTML = `🏆 ${DEFAULT_RANKING_TITLE} 🏆`;
+                    localStorage.setItem(RANKING_TITLE_STORAGE_KEY, DEFAULT_RANKING_TITLE);
+                }
+            });
+
+
+            // Agregar Alumno
+            addAlumnoBtn.addEventListener('click', () => addAlumno(newAlumnoNameInput.value));
+            newAlumnoNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addAlumno(newAlumnoNameInput.value);
+                }
+            });
+
+            // Crear Ranking Nuevo
+            newRankingBtn.addEventListener('click', clearRanking);
+        });
+    </script>
+</body>
+</html>
