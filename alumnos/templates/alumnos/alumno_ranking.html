@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo_ranking }}</title> {# Si mantuviste el modelo ConfiguracionRanking #}
+    <meta name="description" content="Crea y gestiona tu propio ranking de alumnos con un sistema de puntos fácil de usar. Ideal para profesores, educadores y juegos, clases gamificadas">
+    <title>{{ titulo_ranking }} - Tu Ranking Personalizado </title> {# Si mantuviste el modelo ConfiguracionRanking #}
     {# <title>Ranking de Alumnos</title> #} {# Si no mantuviste el modelo de Config #}
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .container { max-width: 1000px; margin: 0 auto; overflow-x: auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         h1 {
             color: #2c3e50;
             text-align: center;
@@ -112,6 +113,13 @@
         </table>
 
         <p class="no-alumnos" id="noAlumnosMessage" style="display: none;">No hay alumnos registrados aún. ¡Empieza agregando uno!</p>
+    
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #777;">
+        <p> <a href="https://www.linkedin.com/in/paulafma/" target="_blank" style="color: #f198f8; text-decoration: none;">   Hecho con 🩷 por Paula Mancilla</a></p>
+        <p>&copy; <span id="currentYear"></span></p>
+    </footer>
+    
+    
     </div>
 
     <script>
@@ -298,6 +306,13 @@
 
             // Crear Ranking Nuevo
             newRankingBtn.addEventListener('click', clearRanking);
+
+            //Añadir año actual dinámicamente
+            const currentYearSpan = document.getElementById('currentYear');
+            if(currentYearSpan){
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
         });
     </script>
 </body>
