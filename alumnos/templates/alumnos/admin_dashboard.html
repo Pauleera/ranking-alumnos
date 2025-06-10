@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .partida-info {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .message-area {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: block;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        .message-area.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message-area.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        /* Temporizador */
+        .timer-section {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .timer-controls button {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .timer-controls button:hover {
+            background-color: #5a6268;
+        }
+        .timer-duration-input {
+            margin-top: 15px;
+        }
+        .timer-duration-input input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 80px;
+        }
+        .timer-duration-input button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .timer-duration-input button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Gestión de alumnos */
+        .alumno-management {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .add-alumno-form {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .add-alumno-form input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-width: 250px;
+        }
+        .add-alumno-form button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .add-alumno-form button:hover {
+            background-color: #218838;
+        }
+
+        /* Tabla de Leaderboard */
+        .leaderboard-table-container {
+            margin-top: 25px;
+            overflow-x: auto; /* Permite scroll horizontal en pantallas pequeñas */
+        }
+        #leaderboardTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #leaderboardTable th, #leaderboardTable td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        #leaderboardTable th {
+            background-color: #007bff;
+            color: white;
+        }
+        #leaderboardTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        #leaderboardTable td button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 0 2px;
+            transition: background-color 0.3s ease;
+        }
+        #leaderboardTable td button.add-points { background-color: #28a745; }
+        #leaderboardTable td button.add-points:hover { background-color: #218838; }
+        #leaderboardTable td button.remove-points { background-color: #dc3545; }
+        #leaderboardTable td button.remove-points:hover { background-color: #c82333; }
+        #leaderboardTable td button.points-input {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 0 2px;
+            transition: background-color 0.3s ease;
+        }
+        #leaderboardTable td button.points-input:hover {
+            background-color: #5a6268;
+        }
+        #leaderboardTable td input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Enlaces de navegación */
+        .navigation-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .navigation-links a {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+        .navigation-links a:hover {
+            background-color: #5a6268;
+        }
+
+        /* Buscador */
+        .search-alumno-input {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: calc(100% - 22px); /* Ajuste para el padding */
+            max-width: 400px;
+            box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard de Administración: {{ partida.nombre }}</h1>
+        <p class="partida-info">Código de Partida: <strong>{{ partida.short_code }}</strong></p>
+        <p class="partida-info" style="font-size: 0.9em; color: #aaa;">ID Interno (no compartir): <strong>{{ partida.id }}</strong></p>
+
+        <div id="messageArea" class="message-area"></div>
+
+        <div class="timer-section">
+            <h2>Temporizador</h2>
+            <div id="timerDisplay" class="timer-display">00:00</div>
+            <div class="timer-controls">
+                <button onclick="startTimer()">Iniciar</button>
+                <button onclick="pauseTimer()">Pausar</button>
+                <button onclick="resetTimer()">Resetear</button>
+            </div>
+            <div class="timer-duration-input">
+                <label for="timerDuration">Establecer Duración (segundos):</label>
+                <input type="number" id="timerDuration" min="0">
+                <button onclick="setTimerDuration()">Guardar Duración</button>
+            </div>
+        </div>
+
+        <div class="alumno-management">
+            <h2>Gestión de Alumnos</h2>
+            <div class="add-alumno-form">
+                <input type="text" id="newAlumnoName" placeholder="Nombre del nuevo alumno" autocomplete="off">
+                <button onclick="addStudent()">Añadir Alumno</button>
+            </div>
+
+            <input type="text" id="searchAlumnoInput" class="search-alumno-input" placeholder="Buscar alumno por nombre..." onkeyup="updateLeaderboardDisplay()">
+
+
+            <div class="leaderboard-table-container">
+                <table id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>Pos.</th>
+                            <th>Nombre</th>
+                            <th>Puntos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="navigation-links">
+            <a href="/" class="back-link">Volver a la página de inicio</a>
+            <a href="/partida/codigo/{{ partida.short_code }}/" class="back-link" target="_blank" >Ver Leaderboard Público</a>
+        </div>
+    </div>
+
+    
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #777;">
+        <p> <a href="https://www.linkedin.com/in/paulafma/" target="_blank" style="color: #f198f8; text-decoration: none;">   Hecho con 🩷 por Paula Mancilla</a></p>
+        <p>&copy; <span id="currentYear"></span></p>
+    </footer>
+    
+
+    <script>
+        const partidaId = "{{ partida.id }}";
+        const messageArea = document.getElementById('messageArea');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerDurationInput = document.getElementById('timerDuration');
+        const newAlumnoNameInput = document.getElementById('newAlumnoName');
+        const searchAlumnoInput = document.getElementById('searchAlumnoInput'); // Nuevo: Input del buscador
+        let timerInterval;
+        let initialDataLoaded = false;
+        let currentAlumnosData = []; // Nuevo: Almacenar los datos originales de los alumnos
+
+        function displayMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = 'message-area ' + type;
+            setTimeout(() => {
+                messageArea.textContent = '';
+                messageArea.className = 'message-area';
+            }, 3000);
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/data/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+                    // Almacena los datos originales y luego llama a la función de display
+                    currentAlumnosData = data.alumnos;
+                    updateLeaderboardDisplay(); // Llama a la función que ahora ordena y filtra
+
+                    updateTimerDisplay(data.partida);
+
+                    if (!initialDataLoaded) {
+                        timerDurationInput.value = data.partida.timer_duration_seconds;
+                        initialDataLoaded = true;
+                    }
+                } else {
+                    console.error('Error al cargar datos de la partida:', data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching partida data:', error);
+            }
+        }
+
+        // --- FUNCIONES DEL LEADERBOARD Y BUSCADOR ---
+        function normalizeText(text){
+            return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        }
+
+
+        // Nueva función para ordenar y filtrar los alumnos
+        function updateLeaderboardDisplay() {
+            let alumnosToDisplay = [...currentAlumnosData]; // Trabajar con una copia de los datos originales
+
+            // 1. Ordenar alfabéticamente por nombre
+            alumnosToDisplay.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+            // 2. Filtrar por búsqueda si hay texto en el buscador
+            const searchTerm = searchAlumnoInput.value.toLowerCase().trim();
+            if (searchTerm) {
+                const normalizedSearchTerm = normalizeText(searchTerm);
+
+                alumnosToDisplay = alumnosToDisplay.filter(alumno =>
+                    normalizeText(alumno.nombre).includes(searchTerm)
+                );
+            }
+
+            const tbody = document.querySelector('#leaderboardTable tbody');
+            tbody.innerHTML = ''; // Limpiar tabla existente
+
+            if (alumnosToDisplay.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">${searchTerm ? 'No se encontraron alumnos con ese nombre.' : 'Aún no hay alumnos en esta partida.'}</td></tr>`;
+                return;
+            }
+
+            alumnosToDisplay.forEach((alumno, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${alumno.nombre}</td>
+                    <td>${alumno.puntos}</td>
+                    <td>
+                        <input type="number" id="pointsInput_${alumno.id}" value="1" min="1">
+                        <button class="add-points" onclick="updatePoints('${alumno.id}', 'add')">+</button>
+                        <button class="remove-points" onclick="updatePoints('${alumno.id}', 'remove')">-</button>
+                    </td>
+                `;
+            });
+        }
+
+
+        // --- FUNCIONES DEL TEMPORIZADOR ---
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay(partidaData) {
+            clearInterval(timerInterval); // Limpia cualquier temporizador anterior
+
+            let remainingSeconds = partidaData.remaining_time_seconds;
+            timerDisplay.textContent = formatTime(remainingSeconds);
+
+            if (partidaData.timer_is_running) {
+                const startTime = new Date(partidaData.timer_start_time);
+                const duration = partidaData.timer_duration_seconds;
+
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((new Date() - startTime) / 1000);
+                    remainingSeconds = Math.max(0, duration - elapsed);
+                    timerDisplay.textContent = formatTime(remainingSeconds);
+
+                    if (remainingSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerDisplay.textContent = "00:00";
+                    }
+                }, 1000);
+            }
+        }
+
+        async function setTimerDuration() {
+            const duration = parseInt(timerDurationInput.value);
+            if (isNaN(duration) || duration < 0) {
+                displayMessage("La duración debe ser un número positivo.", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/timer_action/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'set_duration', duration: duration })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayMessage("Duración del temporizador guardada.", "success");
+                    timerDurationInput.value = data.partida.timer_duration_seconds;
+                    updateTimerDisplay(data.partida);
+                } else {
+                    displayMessage(`Error al guardar duración: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al guardar duración del temporizador:', error);
+                displayMessage("Error de conexión al guardar duración.", "error");
+            }
+        }
+
+        async function startTimer() {
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/timer_action/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'start' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    displayMessage("Temporizador iniciado.", "success");
+                    updateTimerDisplay(data.partida);
+                } else {
+                    displayMessage(`Error al iniciar temporizador: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al iniciar temporizador:', error);
+                displayMessage("Error de conexión al iniciar temporizador.", "error");
+            }
+        }
+
+        async function pauseTimer() {
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/timer_action/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'pause' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    displayMessage("Temporizador pausado.", "success");
+                    updateTimerDisplay(data.partida);
+                } else {
+                    displayMessage(`Error al pausar temporizador: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al pausar temporizador:', error);
+                displayMessage("Error de conexión al pausar temporizador.", "error");
+            }
+        }
+
+        async function resetTimer() {
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/timer_action/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'reset' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    displayMessage("Temporizador reseteado.", "success");
+                    updateTimerDisplay(data.partida);
+                    // Asegúrate de que el input de duración muestre la duración total después de resetear
+                    timerDurationInput.value = data.partida.timer_duration_seconds;
+                } else {
+                    displayMessage(`Error al resetear temporizador: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al resetear temporizador:', error);
+                displayMessage("Error de conexión al resetear temporizador.", "error");
+            }
+        }
+
+
+        // --- FUNCIONES DE GESTIÓN DE ALUMNOS ---
+
+        async function addStudent() {
+            const nombreAlumno = newAlumnoNameInput.value.trim();
+            if (!nombreAlumno) {
+                displayMessage("El nombre del alumno no puede estar vacío.", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/add_alumno/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre_alumno: nombreAlumno })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayMessage(`Alumno "${data.alumno.nombre}" añadido.`, "success");
+                    newAlumnoNameInput.value = ''; // Limpiar input
+                    fetchData(); // Recargar datos
+                } else {
+                    displayMessage(`Error al añadir alumno: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al añadir alumno:', error);
+                displayMessage("Error de conexión al añadir alumno.", "error");
+            }
+        }
+
+        async function updatePoints(alumnoId, action) {
+            const pointsInput = document.getElementById(`pointsInput_${alumnoId}`);
+            let pointsChange = parseInt(pointsInput.value);
+
+            if (isNaN(pointsChange) || pointsChange <= 0) {
+                displayMessage("Introduce una cantidad de puntos válida.", "error");
+                return;
+            }
+
+            if (action === 'remove') {
+                pointsChange = -pointsChange; // Convertir a negativo para restar
+            }
+
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/update_points/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ alumno_id: alumnoId, points_change: pointsChange })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    displayMessage(`Puntos ${action === 'add' ? 'añadidos' : 'restados'} a ${data.alumno.nombre}.`, "success");
+                    fetchData(); // Recargar datos para actualizar la tabla
+                } else {
+                    displayMessage(`Error al actualizar puntos: ${data.error}`, "error");
+                }
+            } catch (error) {
+                console.error('Error al actualizar puntos:', error);
+                displayMessage("Error de conexión al actualizar puntos.", "error");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYearSpan = document.getElementById('currentYear');
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            // Cargar datos iniciales y luego refrescar periódicamente
+            fetchData();
+            setInterval(fetchData, 3000);
+        });
+    </script>
+</body>
+</html>

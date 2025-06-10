@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de Clase Gamificada</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .button-group {
+            margin-top: 30px;
+        }
+        .button-group a, .button-group button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+        .button-group a:hover, .button-group button:hover {
+            background-color: #218838;
+        }
+        form {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: inline-block; /* Para que ocupe menos espacio */
+            width: auto;
+            max-width: 100%;
+        }
+        form input[type="text"] {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px; /* Ancho fijo para los inputs */
+            max-width: calc(100% - 130px); /* Ajuste para móviles */
+        }
+        form button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            margin-top: auto; /* Empuja el footer hacia abajo */
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido al Ranking de Clase Gamificada</h1>
+        <p>Crea una nueva partida para empezar a gamificar tu clase y motivar a tus alumnos.</p>
+        <div class="button-group">
+            <a href="{% url 'alumnos:create_partida' %}">Crear Nueva Partida</a>
+        </div>
+
+        <div class="existing-partida-section">
+            <p>¿Ya tienes una partida?</p>
+            <form action="#" method="get" onsubmit="event.preventDefault(); goToPartida();">
+                <input type="text" id="partida_id_input" placeholder="Introduce el CÓDIGO de la Partida" required>
+                <button type="submit">Ver Leaderboard</button>
+            </form>
+            <form action="#" method="get" onsubmit="event.preventDefault(); goToAdmin();">
+                <input type="text" id="admin_partida_id_input" placeholder="CÓDIGO de Partida para Administrar" required>
+                <button type="submit">Administrar Partida</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="currentYear"></span> Ranking de Clase Gamificada. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYearSpan = document.getElementById('currentYear');
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+        });
+
+        function goToPartida() {
+            const shortCode = document.getElementById('partida_id_input').value.trim();
+            if (shortCode) {
+                // Asegúrate de que la URL coincide con tu urls.py (con la barra final)
+                window.location.href = `/partida/codigo/${shortCode}/`;
+            } else {
+                alert("Por favor, introduce un código de partida.");
+            }
+        }
+
+        function goToAdmin() {
+            const shortCode = document.getElementById('admin_partida_id_input').value.trim();
+            if (shortCode) {
+                // Asegúrate de que la URL coincide con tu urls.py (con la barra final)
+                window.location.href = `/partida/codigo/${shortCode}/admin/`;
+            } else {
+                alert("Por favor, introduce un código de partida.");
+            }
+        }
+    </script>
+</body>
+</html>

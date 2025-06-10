@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .partida-info {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .timer-section {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #d6d89d;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .leaderboard-table-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        #leaderboardTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #leaderboardTable th, #leaderboardTable td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        #leaderboardTable th {
+            background-color: #007bff;
+            color: white;
+        }
+        #leaderboardTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        /* Colores para los primeros lugares */
+        #leaderboardTable tr.place-1 {
+            background-color: #ffeb3b; /* Oro */
+            font-weight: bold;
+            color: #333;
+        }
+        #leaderboardTable tr.place-2 {
+            background-color: #e0e0e0; /* Plata */
+            font-weight: bold;
+            color: #333;
+        }
+        #leaderboardTable tr.place-3 {
+            background-color: #d6b38c; /* Bronce */
+            font-weight: bold;
+            color: #333;
+        }
+        .navigation-links {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Para que los botones se ajusten en líneas si es necesario */
+            gap: 10px; /* Espacio entre los botones */
+        }
+        .navigation-links a, .navigation-links button { /* Añadido 'button' */
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            border: none; /* Asegurar que los botones no tengan borde por defecto */
+            cursor: pointer; /* Cursor de puntero para el botón */
+            font-size: 1em; /* Ajustar fuente */
+        }
+        .navigation-links a:hover, .navigation-links button:hover {
+            background-color: #5a6268;
+        }
+        /* Estilo para el botón de compartir */
+        .navigation-links button.share-button {
+            background-color: #17a2b8; /* Un color de "información" o "compartir" */
+        }
+        .navigation-links button.share-button:hover {
+            background-color: #138496;
+        }
+        .copy-message {
+            background-color: #cc79af;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            position: fixed; /* O absolute, dependiendo del contenedor */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none; /* Permite hacer clic a través del mensaje */
+        }
+        .copy-message.show {
+            opacity: 1;
+        }
+
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: rgb(229, 125, 230);
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Leaderboard: {{ partida.nombre }}</h1>
+        <p class="partida-info">Código de Partida: <strong>{{ partida.short_code }}</strong></p>
+
+        <div class="timer-section">
+            <h2> ⏰ Tiempo Restante ⏰</h2>
+            <div id="timerDisplay" class="timer-display">00:00</div>
+        </div>
+
+        <div class="leaderboard-table-container">
+            <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th>Lugar</th>
+                        <th>Nombre</th>
+                        <th>Puntos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="navigation-links">
+            <a href="/" class="back-link"> ⬅️ Volver a la página de inicio</a>
+            <a href="/partida/codigo/{{ partida.short_code }}/admin/" class="back-link"> 👤 Administrar esta Partida</a>
+            <button class = "share-button" onclick="copyLeaderboardLink()"> 🤩 ¡Comparte el Leaderboard! </button>
+        </div>
+    </div>
+
+    
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #777;">
+        <p>Hecho con 🩷 por Paula Mancilla</p>
+        <p>Visita mi <a href="https://www.linkedin.com/in/paulafma/" target="_blank" style="color: #3498db; text-decoration: none;">LinkedIn</a></p>
+        <p>&copy; <span id="currentYear"></span></p>
+    </footer>
+    
+    <div id="copyMessage" class="copy-message">¡Link copiado!</div>
+
+    <script>
+        const partidaId = "{{ partida.id }}";
+        const timerDisplay = document.getElementById('timerDisplay');
+        let timerInterval;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(`/api/partida/${partidaId}/data/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.success) {
+                    // Actualiza el leaderboard con los alumnos (ya ordenados por puntos en la API)
+                    updateLeaderboard(data.alumnos);
+                    updateTimerDisplay(data.partida);
+                } else {
+                    console.error('Error al cargar datos de la partida:', data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching partida data:', error);
+            }
+        }
+
+        // --- MODIFICACIÓN EN updateLeaderboard ---
+        function updateLeaderboard(alumnos) {
+            const tbody = document.querySelector('#leaderboardTable tbody');
+            tbody.innerHTML = ''; // Limpiar tabla existente
+
+            if (alumnos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3">Aún no hay alumnos en esta partida.</td></tr>`;
+                return;
+            }
+
+            alumnos.forEach((alumno, index) => {
+                const row = tbody.insertRow();
+                let emoji = '';
+                let className = '';
+
+                // Determinar el emoji y la clase CSS según la posición
+                if (index === 0) {
+                    emoji = '🥇 ';
+                    className = 'place-1';
+                } else if (index === 1) {
+                    emoji = '🥈 ';
+                    className = 'place-2';
+                } else if (index === 2) {
+                    emoji = '🥉 ';
+                    className = 'place-3';
+                }
+
+                // Añadir la clase a la fila
+                if (className) {
+                    row.classList.add(className);
+                }
+
+                // Insertar los datos en las celdas
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${emoji}${alumno.nombre}</td>
+                    <td>${alumno.puntos}</td>
+                `;
+            });
+        }
+
+        // --- FUNCIONES DEL TEMPORIZADOR (no cambian) ---
+        function updateTimerDisplay(partidaData) {
+            clearInterval(timerInterval);
+
+            let remainingSeconds = partidaData.remaining_time_seconds;
+            timerDisplay.textContent = formatTime(remainingSeconds);
+
+            if (partidaData.timer_is_running) {
+                const startTime = new Date(partidaData.timer_start_time);
+                const duration = partidaData.timer_duration_seconds;
+
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((new Date() - startTime) / 1000);
+                    remainingSeconds = Math.max(0, duration - elapsed);
+                    timerDisplay.textContent = formatTime(remainingSeconds);
+
+                    if (remainingSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerDisplay.textContent = "00:00";
+                    }
+                }, 1000);
+            }
+        }
+
+        //--Función para compartir -- 
+        function copyLeaderboardLink() {
+            // Construye la URL completa del leaderboard actual
+            // window.location.origin obtiene "http://127.0.0.1:8000"
+            // window.location.pathname obtiene "/partida/codigo/ABCD/"
+            const leaderboardLink = window.location.origin + window.location.pathname;
+
+            // Usa la API Clipboard para copiar texto
+            navigator.clipboard.writeText(leaderboardLink).then(() => {
+                const copyMessage = document.getElementById('copyMessage');
+                copyMessage.classList.add('show');
+                setTimeout(() => {
+                    copyMessage.classList.remove('show');
+                }, 1500); // Muestra el mensaje por 1.5 segundos
+            }).catch(err => {
+                console.error('Error al copiar el link:', err);
+                alert('No se pudo copiar el link. Por favor, cópialo manualmente: ' + leaderboardLink);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYearSpan = document.getElementById('currentYear');
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            fetchData();
+            setInterval(fetchData, 3000);
+        });
+    </script>
+</body>
+</html>
