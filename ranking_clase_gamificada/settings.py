@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-insecure-default-key-for-
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ranking-alumnos.onrender.com', 'localhost', '127.0.0.1']
 
 if DEBUG:
     ALLOWED_HOSTS.append('127.0.0.1')

@@ -10,32 +10,8 @@ from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import F # Operaciones atómicas
+from .form import CreatePartidaForm, AdminLoginForm
 
-
-class CreatePartidaForm(forms.ModelForm):
-    admin_password = forms = forms.CharField(
-        max_length=8,
-        label= "Contraseña de administrador",
-        widget=forms.PasswordInput(attrs={'placeholder':'contraseña para administrar'}),
-        required = True
-    )
-    class Meta:
-        model = Partida
-        fields = ['nombre']
-        labels = {
-            'nombre_partida': 'Nombre de la Partida',
-        }
-        widgets = {
-            'nombre_partida': forms.TextInput(attrs={'placeholder': 'Ej: Clase 5A - Matemáticas'})
-        }
-
-class AdminLoginForm(forms.Form):
-    admin_password = forms.CharField(
-        max_length=8,
-        label="Contraseña de Administrador",
-        widget=forms.PasswordInput(attrs={'placeholder': 'Introduce la contraseña'}),
-        required=True
-    )
 
 
 
