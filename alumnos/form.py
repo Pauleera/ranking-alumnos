@@ -3,7 +3,7 @@ from .models import Partida
 
 
 class CreatePartidaForm(forms.ModelForm):
-    admin_password = forms = forms.CharField(
+    admin_password = forms.CharField(
         max_length=8,
         label= "Contraseña de administrador",
         widget=forms.PasswordInput(attrs={'placeholder':'contraseña para administrar'}),
