@@ -4,7 +4,7 @@ from .models import Partida
 
 class CreatePartidaForm(forms.ModelForm):
     admin_password = forms.CharField(
-        max_length=8,
+        max_length=100,
         label= "Contraseña de administrador",
         widget=forms.PasswordInput(attrs={'placeholder':'contraseña para administrar'}),
         required = True
@@ -13,10 +13,10 @@ class CreatePartidaForm(forms.ModelForm):
         model = Partida
         fields = ['nombre']
         labels = {
-            'nombre_partida': 'Nombre de la Partida',
+            'nombre': 'Nombre de la Partida',
         }
         widgets = {
-            'nombre_partida': forms.TextInput(attrs={'placeholder': 'Ej: Clase 5A - Matemáticas'})
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ej: Clase 5A - Matemáticas'})
         }
 
 class AdminLoginForm(forms.Form):

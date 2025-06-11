@@ -41,9 +41,7 @@ def create_partida_view(request):
 
 
             partida.save()
-
             request.session[f'admin_logged_in_{partida.id}'] = True
-
             return redirect(reverse('alumnos:admin_dashboard', args=[partida.id]))
     else:
         form = CreatePartidaForm()
