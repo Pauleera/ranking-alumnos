@@ -9,7 +9,7 @@ import string
 class Partida(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text="ID único para compartir la partida" )
     nombre = models.CharField(max_length=200 , help_text="Nombre de la partida (ej. 'Competencia de Programación').")
-    admin_password_hash = models.CharField(max_length=4, help_text="contraseña para administrar la partida")
+    admin_password_hash = models.CharField(max_length=128, help_text="contraseña para administrar la partida")
     short_code = models.CharField(max_length=8, unique=True, blank=True, null=True)
 
     #Temporizador

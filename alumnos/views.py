@@ -53,7 +53,7 @@ def create_partida_view(request):
             nombre = form.cleaned_data['nombre_partida']
             raw_password = form.cleaned_data['admin_password']
             if raw_password:
-                partida.admin_password_hash = make_password(raw_password)
+                partida.set_admin_password(raw_password)
 
 
             partida.save()
