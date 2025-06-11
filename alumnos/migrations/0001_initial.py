@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 (
                     "admin_password_hash",
                     models.CharField(
-                        help_text="contraseña para administrar la partida", max_length=4
+                        help_text="contraseña para administrar la partida", max_length=8
                     ),
                 ),
                 (

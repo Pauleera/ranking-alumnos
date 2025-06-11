@@ -10,9 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-        model_name='partida',
-        name='short_code',
-        field=models.CharField(blank=True, help_text='ID único para compartir la partida', max_length=8, null=True, unique=True),
-    ),
+
+
     ]
