@@ -12,23 +12,29 @@ import json
 from django.db.models import F # Operaciones atómicas
 
 
-class CreatePartidaForm(forms.Form):
-    nombre_partida = forms.CharField(
-        max_length=200,
-        label='Nombre de la Partida',
-        widget=forms.TextInput(attrs={'placeholder': 'Ej: Programación Competitiva - UdeC'})
-    )
+class CreatePartidaForm(forms.ModelForm):
     admin_password = forms = forms.CharField(
-        max_length=4,
+        max_length=8,
         label= "Contraseña de administrador",
-        widget=forms.PasswordInput(attrs={'placeholder':'contraseña para administrar'})
+        widget=forms.PasswordInput(attrs={'placeholder':'contraseña para administrar'}),
+        required = True
     )
+    class Meta:
+        model = Partida
+        fields = ['nombre']
+        labels = {
+            'nombre_partida': 'Nombre de la Partida',
+        }
+        widgets = {
+            'nombre_partida': forms.TextInput(attrs={'placeholder': 'Ej: Clase 5A - Matemáticas'})
+        }
 
 class AdminLoginForm(forms.Form):
     admin_password = forms.CharField(
-        max_length=100,
+        max_length=8,
         label="Contraseña de Administrador",
-        widget=forms.PasswordInput(attrs={'placeholder': 'Introduce la contraseña'})
+        widget=forms.PasswordInput(attrs={'placeholder': 'Introduce la contraseña'}),
+        required=True
     )
 
 
@@ -44,16 +50,18 @@ def create_partida_view(request):
             partida = form.save(commit=False) #Obtener partida, sin guardarla
 
 
-            while True:
-                new_short_code = get_random_string(length=4).upper()
-                if not Partida.objects.filter(short_code = new_short_code).exists():
-                    partida.short_code = new_short_code
-                    break
+            # while True:
+            #     new_short_code = get_random_string(length=4).upper()
+            #     if not Partida.objects.filter(short_code = new_short_code).exists():
+            #         partida.short_code = new_short_code
+            #         break
 
-            nombre = form.cleaned_data['nombre_partida']
+            # # nombre = form.cleaned_data['nombre_partida']
             raw_password = form.cleaned_data['admin_password']
             if raw_password:
                 partida.set_admin_password(raw_password)
+            else:
+                pass
 
 
             partida.save()
