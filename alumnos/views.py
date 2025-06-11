@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import F # Operaciones atómicas
@@ -36,14 +37,25 @@ def home_view(request):
     return render(request, 'alumnos/home.html')
 
 def create_partida_view(request):
+    
     if request.method == 'POST':
         form = CreatePartidaForm(request.POST)
         if form.is_valid():
+            partida = form.save(commit=False) #Obtener partida, sin guardarla
+
+
+            while True:
+                new_short_code = get_random_string(length=4).upper()
+                if not Partida.objects.filter(short_code = new_short_code).exists():
+                    partida.short_code = new_short_code
+                    break
+
             nombre = form.cleaned_data['nombre_partida']
             raw_password = form.cleaned_data['admin_password']
+            if raw_password:
+                partida.admin_password_hash = make_password(raw_password)
 
-            partida = Partida(nombre=nombre)
-            partida.set_admin_password(raw_password)
+
             partida.save()
 
             request.session[f'admin_logged_in_{partida.id}'] = True
