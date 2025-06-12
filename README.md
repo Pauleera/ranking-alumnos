@@ -6,9 +6,12 @@ Crea y gestiona tu propio ranking de alumnos con un sistema de puntos fácil de 
 Ideal para profesores, educadores, juegos y gamificación en el aula. 
 
 Puedes:
- - 💁‍♂️ Añadir y quitar competidores
- - ➕ Sumar puntaje
- - 🏅 Visualizar la tabla de puntajes
+ - 👤 Administrar partidas personalizadas con una contraseña
+ - 💁‍♂️ Añadir competidores
+ - ➕ Sumar puntaje y restar puntaje
+ - ⏰ Añadir temporarizador
+ - 🏅 Visualizar la tabla de puntajes en tiempo real
+ - 🤩 ¡Compartir tabla de puntajes con todo el mundo!
 
    
 
